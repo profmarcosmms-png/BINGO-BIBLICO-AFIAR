@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bingo Bíblico — Cartela Online</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{--bg:#100B06;--bg2:#1A120A;--card:#241A10;--white:#EDE1CE;--gold:#FF8A3D;--gold2:#FFE066;
+  --pt:#1D4ED8;--pt2:#93C5FD;--hi:#059669;--hi2:#6EE7B7;--sb:#D97706;--sb2:#FCD34D;--pr:#DC2626;--pr2:#FCA5A5;--nt:#7C3AED;--nt2:#C4B5FD;}
+body{background:var(--bg);color:var(--white);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:12px;}
+#topbar{text-align:center;padding:10px 4px 14px;}
+#topbar h1{font-size:19px;font-weight:900;color:var(--gold);letter-spacing:0.3px;}
+#topbar .sub{font-size:11px;color:#A8876A;margin-top:2px;}
+
+#entrada{max-width:360px;margin:40px auto;background:var(--bg2);border:1px solid #3D2B18;border-radius:16px;padding:22px;text-align:center;}
+#entrada h2{font-size:16px;color:var(--gold);margin-bottom:10px;}
+#entrada p{font-size:13px;color:#C4A57E;margin-bottom:14px;line-height:1.5;}
+#entrada input{width:100%;padding:12px;border-radius:10px;border:1px solid #4A3420;background:#1A1108;color:var(--white);font-size:15px;margin-bottom:10px;text-align:center;}
+#entrada button{width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#7C3AED,#9333EA);color:white;font-size:15px;font-weight:700;cursor:pointer;}
+
+#jogo{display:none;max-width:420px;margin:0 auto;}
+#status-pill{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--bg2);border:1px solid #3D2B18;border-radius:12px;padding:10px;margin-bottom:12px;}
+#status-dot{width:9px;height:9px;border-radius:50%;background:#6EE7B7;animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+#status-txt{font-size:12px;color:#C4A57E;font-weight:600;}
+
+#ultima-pergunta{background:linear-gradient(135deg,#241708,#2A1C0E);border:2px solid var(--gold);border-radius:14px;padding:12px 16px;margin-bottom:14px;text-align:center;min-height:44px;display:flex;align-items:center;justify-content:center;}
+#ultima-pergunta .lbl{font-size:10px;color:var(--gold);font-weight:700;letter-spacing:1px;display:block;margin-bottom:2px;}
+#ultima-pergunta .val{font-size:16px;font-weight:800;color:var(--white);}
+
+#grade{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;background:var(--bg2);border:1px solid #3D2B18;border-radius:14px;padding:8px;}
+.cel{aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px;font-size:10.5px;font-weight:700;line-height:1.15;border:1.5px solid transparent;transition:all 0.25s;position:relative;}
+.cel.pt{background:#DBEAFE22;border-color:var(--pt2);color:var(--pt2);}
+.cel.hi{background:#D1FAE522;border-color:var(--hi2);color:var(--hi2);}
+.cel.sb{background:#FEF3C722;border-color:var(--sb2);color:var(--sb2);}
+.cel.pr{background:#FEE2E222;border-color:var(--pr2);color:var(--pr2);}
+.cel.nt{background:#EDE9FE22;border-color:var(--nt2);color:var(--nt2);}
+.cel.free{background:linear-gradient(135deg,#3D2B18,#4A3420);border-color:var(--gold);color:var(--gold2);font-size:13px;}
+.cel.marcada{opacity:1;transform:scale(1.03);box-shadow:0 0 14px currentColor;}
+.cel.marcada::after{content:'✓';position:absolute;top:2px;right:4px;font-size:11px;color:var(--gold2);}
+.cel:not(.marcada):not(.free){opacity:0.55;}
+
+#rodape{text-align:center;margin-top:16px;font-size:11px;color:#7A6650;}
+
+#bingo-modal{display:none;position:fixed;inset:0;background:rgba(8,5,2,0.95);align-items:center;justify-content:center;z-index:999;}
+#bingo-modal.show{display:flex;}
+.bingo-box{background:var(--bg2);border:2px solid var(--gold);border-radius:20px;padding:30px;text-align:center;max-width:300px;}
+.bingo-box .emoji{font-size:40px;margin-bottom:10px;}
+.bingo-box h2{font-size:26px;color:var(--gold);font-weight:900;margin-bottom:8px;}
+.bingo-box p{font-size:13px;color:#C4A57E;margin-bottom:16px;}
+.bingo-box button{padding:10px 22px;border-radius:10px;border:none;background:var(--gold);color:#100B06;font-weight:700;font-size:14px;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <h1>📖 BINGO BÍBLICO</h1>
+  <div class="sub">Projeto Lâmpada · Afiar — Ev. Marcos Monteiro</div>
+</div>
+
+<div id="entrada">
+  <h2>Entrar na sessão</h2>
+  <p>Digite seu nome para receber sua cartela pessoal desta rodada.</p>
+  <input type="text" id="sessaoInput" placeholder="Código da sessão (ex: ABCD-1234)">
+  <input type="text" id="nomeInput" placeholder="Seu nome">
+  <button onclick="entrar()">🎟️ Pegar minha cartela</button>
+  <div id="entrada-erro" style="color:#F87171;font-size:12px;margin-top:8px;"></div>
+</div>
+
+<div id="jogo">
+  <div id="status-pill">
+    <div id="status-dot"></div>
+    <div id="status-txt">Conectado à sessão <b id="status-sessao"></b></div>
+  </div>
+  <div id="ultima-pergunta">
+    <div>
+      <span class="lbl">ÚLTIMO ITEM SORTEADO</span>
+      <div class="val" id="ultimo-val">Aguardando o sorteio começar...</div>
+    </div>
+  </div>
+  <div id="grade"></div>
+  <div id="rodape">Sua cartela é pessoal — as marcações acontecem sozinhas conforme o apresentador sorteia.</div>
+</div>
+
+<div id="bingo-modal">
+  <div class="bingo-box">
+    <div class="emoji">🎉📖🙏</div>
+    <h2>BINGO!</h2>
+    <p>Você completou uma linha! Avise o apresentador para conferir.</p>
+    <button onclick="document.getElementById('bingo-modal').classList.remove('show')">Continuar jogando</button>
+  </div>
+</div>
+
+<script>
+let SESSAO = '';
+let PARTICIPANTE_ID = localStorage.getItem('bingo_participante_id');
+if (!PARTICIPANTE_ID) {
+  PARTICIPANTE_ID = 'p_' + Math.random().toString(36).slice(2, 10);
+  localStorage.setItem('bingo_participante_id', PARTICIPANTE_ID);
+}
+let GRADE = [];
+let SORTEADOS = new Set();
+let BINGO_JA_ENVIADO = false;
+let pollTimer = null;
+
+function entrar(){
+  const cod = document.getElementById('sessaoInput').value.trim().toUpperCase();
+  const nome = document.getElementById('nomeInput').value.trim() || 'Participante';
+  if(!cod){ document.getElementById('entrada-erro').textContent = 'Digite o código da sessão.'; return; }
+  SESSAO = cod;
+  localStorage.setItem('bingo_ultimo_nome', nome);
+  localStorage.setItem('bingo_ultima_sessao', cod);
+
+  fetch('?action=cartela&sessao=' + encodeURIComponent(cod) + '&participanteId=' + encodeURIComponent(PARTICIPANTE_ID) + '&nome=' + encodeURIComponent(nome))
+    .then(r => r.json())
+    .then(data => {
+      if(!data.ok){ document.getElementById('entrada-erro').textContent = 'Sessão não encontrada. Confira o código com o apresentador.'; return; }
+      GRADE = data.grade;
+      document.getElementById('entrada').style.display = 'none';
+      document.getElementById('jogo').style.display = 'block';
+      document.getElementById('status-sessao').textContent = cod;
+      renderGrade();
+      iniciarPolling();
+    })
+    .catch(()=>{ document.getElementById('entrada-erro').textContent = 'Erro de conexão. Verifique sua internet.'; });
+}
+
+function renderGrade(){
+  const el = document.getElementById('grade');
+  el.innerHTML = GRADE.map(cell=>{
+    const marcada = cell.cat==='free' || SORTEADOS.has(cell.id);
+    return `<div class="cel ${cell.cat} ${marcada?'marcada':''}">${cell.label}</div>`;
+  }).join('');
+}
+
+function checarBingo(){
+  if(BINGO_JA_ENVIADO) return;
+  const marcado = i => GRADE[i].cat==='free' || SORTEADOS.has(GRADE[i].id);
+  let completou = false;
+  for(let r=0;r<5;r++){ let ok=true; for(let c=0;c<5;c++){ if(!marcado(r*5+c)){ok=false;break;} } if(ok){completou=true;break;} }
+  if(!completou) for(let c=0;c<5;c++){ let ok=true; for(let r=0;r<5;r++){ if(!marcado(r*5+c)){ok=false;break;} } if(ok){completou=true;break;} }
+  if(completou){
+    BINGO_JA_ENVIADO = true;
+    document.getElementById('bingo-modal').classList.add('show');
+    const nome = localStorage.getItem('bingo_ultimo_nome') || 'Participante';
+    fetch('?action=bingo', {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({sessao:SESSAO, participanteId:PARTICIPANTE_ID, nome:nome})
+    }).catch(()=>{});
+  }
+}
+
+function iniciarPolling(){
+  atualizarEstado();
+  pollTimer = setInterval(atualizarEstado, 3000);
+}
+
+function atualizarEstado(){
+  fetch('?action=estado&sessao=' + encodeURIComponent(SESSAO))
+    .then(r=>r.json())
+    .then(data=>{
+      if(!data.ok) return;
+      SORTEADOS = new Set(data.sorteados);
+      if(data.ultimoItem && data.ultimoItem.label){
+        document.getElementById('ultimo-val').textContent = data.ultimoItem.label;
+      }
+      renderGrade();
+      checarBingo();
+      if(!data.ativo){
+        document.getElementById('status-txt').innerHTML = 'Sessão encerrada pelo apresentador';
+        document.getElementById('status-dot').style.background = '#F87171';
+        clearInterval(pollTimer);
+      }
+    })
+    .catch(()=>{});
+}
+
+// Preenche automaticamente se já usou este dispositivo antes
+window.addEventListener('DOMContentLoaded', ()=>{
+  const nomeSalvo = localStorage.getItem('bingo_ultimo_nome');
+  if(nomeSalvo) document.getElementById('nomeInput').value = nomeSalvo;
+
+  // Pega o código da sessão direto da URL (?sessao=ABCD-1234), como quando se escaneia o QR Code
+  const params = new URLSearchParams(window.location.search);
+  const sessaoUrl = params.get('sessao');
+  if(sessaoUrl){
+    document.getElementById('sessaoInput').value = sessaoUrl;
+  } else {
+    const sessaoSalva = localStorage.getItem('bingo_ultima_sessao');
+    if(sessaoSalva) document.getElementById('sessaoInput').value = sessaoSalva;
+  }
+});
+</script>
+</body>
+</html>
